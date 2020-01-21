@@ -1,0 +1,25 @@
+// Variables
+
+// Color System
+$white: #fff !default;
+$black: #000 !default;
+
+$magenta:   #FF00FF !default;
+$maroon:    #800000 !default;
+
+$colors: () !default;
+$colors: map-merge(
+    (
+        "magenta": $magenta,
+        "maroon":  $maroon
+    ),
+    $colors
+);
+
+$theme-colors: () !default;
+
+$theme-colors: map-merge(
+  (
+  ),
+  $theme-colors
+);
