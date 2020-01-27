@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import EditableLabel from './components/EditableLabel/EditableLabel';
+import Grid from './components/Grid/Grid';
 
 function App() {
   const [label, changeLabel] = useState('');
@@ -20,6 +21,8 @@ function App() {
             <EditableLabel value={"Feed the Cat"} onSave={(value) => changeLabel(value)} />
           </li>
         </ul>
+
+        <Grid />
     </div>
   );
 }
