@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useTable , useFilters, useGlobalFilter } from 'react-table';
+import { useTable , useFilters, useGlobalFilter, useExpanded } from 'react-table';
 import matchSorter from 'match-sorter';
 import makeData from './makeData';
 import styles from './Grid.module.scss';
@@ -83,7 +83,8 @@ const Table = ({columns, data}) => {
       filterTypes
     },
     useFilters, // useFilters!
-    useGlobalFilter // useGlobalFilter!
+    useGlobalFilter, // useGlobalFilter!
+    useExpanded
   );
 
   const renderCell = (cell) => (
@@ -127,7 +128,8 @@ const Table = ({columns, data}) => {
 
 const Grid = (props) => {
   const columns = useMemo(() => [
-    { id: "row", Header: "", Cell: ({row}) => (<div> {row.index+1} </div>), maxWidth: 50, header: true},
+    { id: "expander", Header: "", },
+    { id: "row", Header: "#", Cell: ({row}) => (<div> {row.index+1} </div>), maxWidth: 50, header: true},
     { id: 1, Header: 'First Name', accessor: 'firstName' },
     { id: 2, Header: 'Last Name', accessor: 'lastName' },
     { id: 3, Header: 'Street Address', accessor: 'streetAddress' },
@@ -139,7 +141,7 @@ const Grid = (props) => {
     { id: 9, Header: 'Dob', accessor: 'dob' }
   ], []);
 
-  const data = useMemo(() => makeData(50), []);
+  const data = useMemo(() => makeData(25), []);
 
   return (
     <Table columns={columns} data={data} />
