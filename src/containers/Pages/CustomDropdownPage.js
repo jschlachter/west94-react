@@ -48,12 +48,19 @@ class CustomDropdownPage extends Component {
     console.log(value);
   }
 
+  onSelect = (option) => {
+    console.log(option);
+    this.setState({
+      value: option.value || option.label || option
+    })
+  }
+
   render () {
     return (
       <>
         <input type="text" onChange={(event) => this.onChange(event)} />
         <CustomDropdown
-          onChange={console.log}
+          onChange={option => this.onSelect(option)}
           options={options}
           placeholder={"Select Employee..."}
           value={this.state.value}

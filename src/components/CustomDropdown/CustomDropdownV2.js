@@ -82,10 +82,10 @@ class CustomDropdown extends Component {
     super(props);
 
     this.state = {
-      selected: parseValue(props.value, props.options) || {
-        label: typeof props.placeholder === 'undefined' ? DEFAULT_PLACEHOLDER_STRING : props.placeholder,
-        value: ''
-      }
+      // selected: parseValue(props.value, props.options) || {
+      //   label: typeof props.placeholder === 'undefined' ? DEFAULT_PLACEHOLDER_STRING : props.placeholder,
+      //   value: ''
+      // }
     }
   }
 
@@ -115,9 +115,8 @@ class CustomDropdown extends Component {
       }
     };
 
-    console.log(newState);
-    this.fireChangeEvent(newState);
     this.setState(newState);;
+    this.fireChangeEvent(newState);
 
   }
 
