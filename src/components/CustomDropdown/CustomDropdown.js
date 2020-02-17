@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import FormControl from 'react-bootstrap/FormControl';
 import matchSorter from  'match-sorter';
@@ -25,9 +25,9 @@ const CustomMenu = React.forwardRef(
   ({ children, onFilter, style, className, 'aria-labelledby': labeledBy }, ref) => {
     const [filterValue, setFilterValue] = useState('');
 
-    useEffect(() => {
-      onFilter({filterValue})
-    }, [onFilter, filterValue])
+    // useEffect(() => {
+    //   onFilter({filterValue})
+    // }, [onFilter, filterValue])
 
     return (
       <div
@@ -57,58 +57,123 @@ const CustomMenu = React.forwardRef(
   },
 );
 
-const lens = (obj, path) => path.split(".").reduce((o, key) => o && o[key] ? o[key] : null, obj)
+const DEFAULT_PLACEHOLDER_STRING = 'Select...'
 
-const CustomDropdown = ({
-  afterRender,
-  onSelect = option => {},
-  options  = [],
-  optionsCaption,
-  optionsText,
-  optionsValue,
-  value
-}) => {
-  const [filtered, setFiltered] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(value);
 
-  const handleFilter = useCallback(({filterValue}) => {
-    setFiltered(matchSorter(options, filterValue, { keys:[optionsText] }));
-  }, []);
+const parseValue = (value, options) => {
+  let option
 
-  const handleSelect = (eventKey, event) => {
-    let option = options.find(option => lens(option, optionsValue) == eventKey);
-    setSelectedItem(option);
+    for (var i = 0, num = options.length; i < num; i++) {
+      if (options[i].type === 'group') {
+        const match = options[i].items.filter(item => item.value === value)
+        if (match.length) {
+          option = match[0]
+        }
+      } else if (typeof options[i].value !== 'undefined' && options[i].value === value) {
+        option = options[i]
+      }
+    }
 
-    if ( onSelect ) {
-      onSelect( option );
+  return option || value
+}
+
+class CustomDropdown extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      selected: parseValue(props.value, props.options) || {
+        label: typeof props.placeholder === 'undefined' ? DEFAULT_PLACEHOLDER_STRING : props.placeholder,
+        value: ''
+      }
     }
   }
 
-  const isActive = option => {
-    return selectedItem === option;
+  //
+  // Invoked immediately after updating occurs. This method
+  // is not called for the initial render.
+  componentDidUpdate(prevProps, prevState) {
+    const { value, options, placeholder } = this.props;
+
+    if ( prevProps.value !== value ) {
+      if( value ) {
+        var selected = parseValue(value, options);
+        this.setState({selected});
+      }
+      else {
+        this.setState({
+          selected: {
+          label: typeof placeholder === 'undefined' ? DEFAULT_PLACEHOLDER_STRING : placeholder,
+          value: ''
+        }});
+      }
+    }
   }
 
-  return (
-    <Dropdown onSelect={handleSelect}>
-      <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components">
-        { optionsCaption }
-      </Dropdown.Toggle>
+  onClick = (label, value) => {
+    const newState = {
+      selected: {
+        value,
+        label
+      }
+    };
 
-      <Dropdown.Menu as={CustomMenu} onFilter={handleFilter}>
-        {
-          filtered.map(option => (
-            <Dropdown.Item
-              active={isActive(option)}
-              key={lens(option, "id")}
-              eventKey={lens(option, optionsValue)}
-            >
-              {lens(option, optionsText)}
-            </Dropdown.Item>
-          ))
-        }
+    this.setState(newState);;
+    this.fireChangeEvent(newState);
+
+  }
+
+  fireChangeEvent = (newState) => {
+    if (newState.selected !== this.state.selected && this.props.onChange) {
+      this.props.onChange(newState.selected)
+    }
+  }
+
+  renderOption = option => {
+    let value = option.value;
+
+    if (typeof value === 'undefined') {
+      value = option.label || option;
+    }
+    let label = option.label || option.value || option;
+    let isSelected = value === this.state.selected.value || value === this.state.selected;
+
+    return (
+      <Dropdown.Item
+        active={isSelected}
+        onClick={() => this.onClick(label, value)}
+        key={`opt_${value}`}
+        eventKey={value}>
+        {label}
+      </Dropdown.Item>
+    )
+  }
+
+  buildMenu ({options}) {
+    return (
+      <Dropdown.Menu as={CustomMenu}>
+        {options.map(this.renderOption)}
       </Dropdown.Menu>
-    </Dropdown>
-  )
-};
+    )
+  }
+
+  render () {
+    const placeHolderValue = typeof this.state.selected === 'string' ? this.state.selected : this.state.selected.label
+
+    const value = (<span>
+      {placeHolderValue}
+    </span>)
+
+    const menu = this.buildMenu(this.props);
+    return (
+      <Dropdown>
+        <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components">
+          {value}
+        </Dropdown.Toggle>
+        {menu}
+      </Dropdown>
+    )
+  }
+}
 
 export default CustomDropdown;
