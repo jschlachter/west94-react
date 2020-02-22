@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import SiteLayout from './containers/Layouts/SiteLayout';
 import CustomDropdownPage from './containers/Pages/CustomDropdownPage';
 import GridPage from './containers/Pages/GridPage';
+import UserPage from './containers/Pages/UserPage';
 
 const routes = [
   {
@@ -26,6 +27,15 @@ const routes = [
       <>
         <h2>Grid</h2>
         <GridPage />
+      </>
+    )
+  },
+  {
+    path: "/User",
+    main: () => (
+      <>
+        <h2>User</h2>
+        <UserPage />
       </>
     )
   }

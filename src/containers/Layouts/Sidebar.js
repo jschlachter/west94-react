@@ -14,6 +14,9 @@ class Sidebar extends Component {
             <NavLink to="/CustomDropdown">Custom Dropdown</NavLink>
           </li>
           <li>
+            <NavLink to="/User">User</NavLink>
+          </li>
+          <li>
             <NavLink to="/Grid">Grid</NavLink>
           </li>
         </ul>
