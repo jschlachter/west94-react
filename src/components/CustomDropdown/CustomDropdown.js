@@ -2,21 +2,23 @@ import React, { Component, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import FormControl from 'react-bootstrap/FormControl';
 import matchSorter from  'match-sorter';
+import styles from './CustomDropdown.module.scss';
+import { classNames } from '../../utilities/css';
 
 // The forwardRef is important!!
 // Dropdown needs access to the DOM node in order to position the Menu
 const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
-  <a
-    href="#home"
-    ref={ref}
-    onClick={e => {
-      e.preventDefault();
-      onClick(e);
-    }}
-  >
-    {children}&nbsp;
-    &#x25bc;
-  </a>
+    <a
+      className={styles.toggle}
+      href="/"
+      ref={ref}
+      onClick={e => {
+        e.preventDefault();
+        onClick(e);
+      }}
+    >
+      {children}
+    </a>
 ));
 
 // forwardRef again here!
@@ -110,12 +112,9 @@ class CustomDropdown extends Component {
     }
   }
 
-  onClick = (label, value) => {
+  onClick = (option) => {
     const newState = {
-      selected: {
-        value,
-        label
-      }
+      selected: {...option}
     };
 
     this.setState(newState);;
@@ -125,7 +124,7 @@ class CustomDropdown extends Component {
 
   fireChangeEvent = (newState) => {
     if (newState.selected !== this.state.selected && this.props.onChange) {
-      this.props.onChange(newState.selected)
+      this.props.onChange(newState.selected, this.state.selected);
     }
   }
 
@@ -141,7 +140,7 @@ class CustomDropdown extends Component {
     return (
       <Dropdown.Item
         active={isSelected}
-        onClick={() => this.onClick(label, value)}
+        onClick={() => this.onClick(option)}
         key={`opt_${value}`}
         eventKey={value}>
         {label}
@@ -166,9 +165,9 @@ class CustomDropdown extends Component {
 
     const menu = this.buildMenu(this.props);
     return (
-      <Dropdown>
-        <Dropdown.Toggle as={CustomToggle} id="dropdown-custom-components">
-          {value}
+      <Dropdown className={styles.custom}>
+        <Dropdown.Toggle as={CustomToggle}>
+          {placeHolderValue}
         </Dropdown.Toggle>
         {menu}
       </Dropdown>
