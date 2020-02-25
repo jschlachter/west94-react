@@ -47,14 +47,17 @@ class PeopleGrid extends React.Component {
 
   handleChange = (newState, prevState) => {
     console.log(newState);
-    this.setState(oldState => ({
-      ...oldState,
-      isLoading: false,
-      selectedPeople: this.props.data.filter(person => prevState.value !== person.id && newState.value === person.id)
-    }))
+    const { selectedPeople } = this.state;
+
+    const people = selectedPeople.filter(person => prevState.original.id !== person.id);
+    this.setState({
+      ...this.state,
+      isLoading:false,
+      selectedPeople: [...people, newState.original]
+    });
   }
 
-  buildRow (people, person,index) {
+  buildRow (people,person,index) {
     return (
       <tr key={index}>
         <td>{index + 1}</td>
@@ -78,9 +81,10 @@ class PeopleGrid extends React.Component {
       </tr>
     )
   }
-  render () {
-    const { data=[], pageSize } = this.props;
 
+  render () {
+    const { pageSize } = this.props;
+    const { selectedPeople } = this.state;
     return (
       <>
       <div className={"container-fluid d-flex justify-content-start flex-row position-sticky align-items-baseline mb-2"}>
@@ -119,13 +123,7 @@ class PeopleGrid extends React.Component {
                 </tr>
               </thead>
               <tbody>
-                {data.reduce((array, person, index) => {
-                  if ( index < pageSize ) {
-                    array.push(this.buildRow(data, person, index));
-                  }
-
-                  return array;
-                }, [])}
+                {selectedPeople.map((person, index) => this.buildRow(selectedPeople, person,  index))}
               </tbody>
             </Table>
           </Col>
