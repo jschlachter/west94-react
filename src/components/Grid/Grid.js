@@ -2,59 +2,52 @@ import React from 'react';
 import Table from 'react-bootstrap/Table';
 import styles from './Grid.module.scss';
 import { Container, Form, Row, Col, FormLabel } from 'react-bootstrap';
-import CustomDropdown from '../CustomDropdown/CustomDropdown';
+import matchSorter from 'match-sorter';
 
-const project = (item, accessor) => {
-  if ( typeof accessor === 'string') {
-    return item[accessor];
-  }
-  else if (typeof accessor === 'function'){
-    return accessor(item);
-  }
-
-  return item;
-}
-
-const DropdownPicker = ({data, onChange, optionsLabel, optionsValue, placeholder, value}) => {
-  const dataSource = data.map((item, index) => ({
-    index,
-    original: {...item},
-    label: project(item, optionsLabel),
-    value: project(item, optionsValue)
-  }));
-
-  return (
-    <>
-      <CustomDropdown
-        options={dataSource}
-        onChange={onChange}
-        placeholder={placeholder}
-        value={value} />
-    </>
-  );
-}
+const PERSON_KEYS = [
+  'firstName',
+  'lastName',
+  'streetAddress',
+  'city',
+  'state',
+  'phone',
+  'userName',
+  'dob',
+  'email'
+]
 
 class PeopleGrid extends React.Component {
   constructor (props) {
     super(props);
 
     this.state = {
-      isLoading: true,
+      filterValue: '',
       pageSize: props.pageSize,
-      selectedPeople: this.props.data.slice(0, 25)
+      selectedPeople: props.data.slice(0, props.pageSize)
     }
   }
 
-  handleChange = (newState, prevState) => {
-    console.log(newState);
-    const { selectedPeople } = this.state;
-
-    const people = selectedPeople.filter(person => prevState.original.id !== person.id);
+  onPageSizeChange = (newPageSize) => {
+    const pageSize = parseInt(newPageSize, 10);
     this.setState({
       ...this.state,
-      isLoading:false,
-      selectedPeople: [...people, newState.original]
+      pageSize,
+      selectedPeople: this.props.data.slice(0, pageSize)
+    })
+  }
+
+  filter = (filterValue) => {
+    const { pageSize } = this.state;
+
+    const people = matchSorter(this.props.data, filterValue, {
+      keys: PERSON_KEYS
     });
+
+    this.setState({
+      ...this.state,
+      filterValue,
+      selectedPeople: people.slice(0, pageSize)
+    })
   }
 
   buildRow (people,person,index) {
@@ -67,15 +60,7 @@ class PeopleGrid extends React.Component {
         <td>{person.city}</td>
         <td>{person.state}</td>
         <td>{person.phone}</td>
-        <td>
-          <DropdownPicker
-            data={people}
-            onChange={this.handleChange}
-            optionsLabel={"userName"}
-            optionsValue={"id"}
-            placeholder={"Select Person..."}
-            value={person.id} />
-        </td>
+        <td>{person.userName}</td>
         <td>{person.dob}</td>
         <td>{person.email}</td>
       </tr>
@@ -83,22 +68,25 @@ class PeopleGrid extends React.Component {
   }
 
   render () {
-    const { pageSize } = this.props;
-    const { selectedPeople } = this.state;
+    const { selectedPeople, pageSize } = this.state;
     return (
       <>
       <div className={"container-fluid d-flex justify-content-start flex-row position-sticky align-items-baseline mb-2"}>
         <div className={"d-flex align-items-baseline"}>
           <Form.Label className={"flex-shrink-0"}>Page Size:</Form.Label>
-          <Form.Control as={"select"}>
+          <Form.Control as={"select"} value={pageSize} onChange={ ({target: {value}}) => this.onPageSizeChange(value)}>
             <option value={10}>10</option>
-            <option value={20}>25</option>
+            <option value={25}>25</option>
             <option value={50}>50</option>
+            <option value={100}>100</option>
           </Form.Control>
         </div>
         <div className={"d-flex align-items-baseline ml-md-auto"}>
           <Form.Label className={"flex-shrink-0 mr-2"}>Search:</Form.Label>
-          <Form.Control></Form.Control>
+          <Form.Control onChange={
+              ({target: {value}}) => this.filter(value)
+            }
+            value={this.state.filterValue} />
         </div>
       </div>
       <Container fluid>

@@ -19,6 +19,9 @@ class Sidebar extends Component {
           <li>
             <NavLink to="/Grid">Grid</NavLink>
           </li>
+          <li>
+            <NavLink to="/People">People</NavLink>
+          </li>
         </ul>
       </div>
     )

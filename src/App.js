@@ -5,6 +5,8 @@ import SiteLayout from './containers/Layouts/SiteLayout';
 import CustomDropdownPage from './containers/Pages/CustomDropdownPage';
 import GridPage from './containers/Pages/GridPage';
 import UserPage from './containers/Pages/UserPage';
+import PeopleProvider from './containers/People/PeopleProvider';
+import PeopleList from './components/People/PeopleList';
 
 const routes = [
   {
@@ -36,6 +38,17 @@ const routes = [
       <>
         <h2>User</h2>
         <UserPage />
+      </>
+    )
+  },
+  {
+    path: "/People",
+    main: () => (
+      <>
+        <h2>People</h2>
+        <PeopleProvider>
+          <PeopleList />
+        </PeopleProvider>
       </>
     )
   }

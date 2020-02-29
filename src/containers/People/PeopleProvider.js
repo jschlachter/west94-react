@@ -1,9 +1,6 @@
-import React, { Component } from 'react';
-import PeopleGrid from '../../components/Grid/Grid';
+import React from 'react';
+import { PeopleContext } from './PeopleContext';
 import faker from 'faker';
-
-const range = (start, end, length = end - start + 1) =>
-  Array.from({ length }, (_, i) => start + i)
 
 const newPerson = () => {
   const firstName = faker.name.firstName();
@@ -29,15 +26,36 @@ const makeData = length => {
   return Array.from({ length }, (_, index) => ({ id: index, ...newPerson() }));
 }
 
+class PeopleProvider extends React.Component {
+  constructor(props) {
+    super(props);
 
-class GridPage extends Component {
+    this.refresh = () => {
+      if (this.state.isLoading) return;
+
+      this.setState({isLoading: true});
+
+      setTimeout(() => {
+        this.setState(state => ({
+          isLoading: false,
+          people: makeData(25)
+        }));
+      }, 1000);
+    };
+
+    this.state = {
+      isLoading: false,
+      people: null
+    };
+  }
+
   render () {
-    const people = makeData(100);
-
     return (
-      <PeopleGrid data={people} pageSize={100} />
-    )
+      <PeopleContext.Provider value={{...this.state, refresh: this.refresh}}>
+        {this.props.children}
+      </PeopleContext.Provider>
+    );
   }
 }
 
-export default GridPage;
+export default PeopleProvider;
